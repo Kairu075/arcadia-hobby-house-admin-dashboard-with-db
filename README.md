@@ -1,500 +1,535 @@
-@extends('layouts.profile')
-@section('main')
-
 <style>
-  /* ── SIDEBAR ── */
-  .sidebar {
-    background: #1e2d5a;
-    border-radius: 14px;
-    overflow: hidden;
+  /* ══════════════════════════════════════
+     NAVBAR — Arcadia Hobby House
+  ══════════════════════════════════════ */
+  .top-navbar {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 2px 12px rgba(30, 58, 95, 0.07);
+    padding: 10px 0;
+    z-index: 50;
   }
-  .sidebar-link {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 18px;
+
+  /* ── Brand ── */
+  .navbar-brand-text .brand-name {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #1e2d5a;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+  }
+  .navbar-brand-text .brand-sub {
+    font-size: .68rem;
+    color: #3b82f6;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+
+  /* ── Search ── */
+  .search-bar-wrapper { min-width: 0; flex: 1; }
+
+  .search-input {
+    background: #f8faff;
+    border: 1.5px solid #dbeafe;
+    border-radius: 10px;
+    padding: 9px 42px 9px 14px;
+    color: #1e293b;
+    font-size: 14px;
+    transition: all .2s;
+    width: 100%;
+  }
+  .search-input::placeholder { color: #94a3b8; }
+  .search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+  }
+  .search-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #94a3b8;
+    padding: 0;
+    z-index: 10;
+    transition: color .2s;
+  }
+  .search-btn:hover { color: #3b82f6; }
+
+  .suggestions-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 100%;
+    max-height: 260px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1.5px solid #dbeafe;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(30,58,95,.12);
+    z-index: 100;
+    padding: 6px;
+  }
+  .suggestion-item {
+    padding: 9px 12px;
+    cursor: pointer;
+    font-size: 13.5px;
+    color: #334155;
+    border-radius: 8px;
+    transition: background .15s;
+  }
+  .suggestion-item:hover,
+  .suggestion-item.active {
+    background: #eff6ff;
+    color: #2550d4;
+  }
+
+  /* ── Nav links ── */
+  .nav-link-custom {
+    color: #334155 !important;
     font-size: 14px;
     font-weight: 600;
-    color: rgba(255,255,255,0.65);
-    transition: 0.2s;
+    padding: 8px 12px !important;
+    border-radius: 8px;
+    transition: all .2s;
     text-decoration: none;
-    border-radius: 10px;
-    margin: 2px 10px;
-    cursor: pointer;
   }
-  .sidebar-link:hover { background: rgba(255,255,255,0.08); color: #fff; }
-  .sidebar-link.active { background: #2550d4; color: #fff; }
-  .sidebar-link.logout:hover { color: #fca5a5; background: rgba(239,68,68,0.15); }
-  @media (max-width: 768px) { .sidebar { border-radius: 5px; } }
-
-  /* ── ORDERS ── */
-  .order-card {
-    background: #fff;
-    border: 1px solid #e8eef7;
-    border-radius: 14px;
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1rem;
-    transition: box-shadow .18s;
+  .nav-link-custom:hover {
+    color: #2550d4 !important;
+    background: #eff6ff;
   }
-  .order-card:hover { box-shadow: 0 4px 20px rgba(59,130,246,.08); }
-  .order-number { font-weight: 800; color: #1e293b; font-size: 1rem; }
-  .order-meta   { color: #94a3b8; font-size: .8rem; margin-top: .15rem; }
-  .order-total  { font-weight: 800; color: #1e293b; font-size: 1.05rem; }
-
-  .order-thumb {
-    width: 52px; height: 52px;
-    border-radius: 10px;
-    object-fit: cover;
-    background: #e2e8f0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem;
-    border: 1px solid #e2e8f0;
-    overflow: hidden;
-  }
-  .order-thumb-more {
-    width: 52px; height: 52px;
-    border-radius: 10px;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: .82rem; font-weight: 700; color: #64748b;
+  .nav-link-custom.active-link {
+    color: #2550d4 !important;
+    background: #eff6ff;
   }
 
-  .btn-view-details {
-    border: 1px solid #d1d5db;
-    background: #fff;
-    color: #374151;
+  /* ── Dropdown ── */
+  .dropdown-menu-custom {
+    border-radius: 12px;
+    border: 1.5px solid #dbeafe;
+    box-shadow: 0 8px 24px rgba(30,58,95,.12);
+    padding: 8px;
+    min-width: 200px;
+  }
+  .dropdown-item-custom {
+    padding: 9px 12px;
+    font-size: 13.5px;
+    color: #334155;
     border-radius: 8px;
-    padding: .4rem 1rem;
-    font-size: .82rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background .18s;
-  }
-  .btn-view-details:hover { background: #f9fafb; }
-  .btn-leave-review {
-    border: 1px solid #d1d5db;
-    background: #fff;
-    color: #374151;
-    border-radius: 8px;
-    padding: .4rem 1rem;
-    font-size: .82rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background .18s;
-  }
-  .btn-leave-review:hover { background: #f9fafb; }
-
-  /* Status badges */
-  .badge-delivered  { background: #dcfce7; color: #16a34a; font-size: .75rem; font-weight: 700; padding: .3rem .75rem; border-radius: 20px; }
-  .badge-shipped    { background: #faf5ff; color: #9333ea; font-size: .75rem; font-weight: 700; padding: .3rem .75rem; border-radius: 20px; }
-  .badge-processing { background: #eff6ff; color: #3b82f6; font-size: .75rem; font-weight: 700; padding: .3rem .75rem; border-radius: 20px; }
-  .badge-pending    { background: #fffbeb; color: #d97706; font-size: .75rem; font-weight: 700; padding: .3rem .75rem; border-radius: 20px; }
-  .badge-cancelled  { background: #fef2f2; color: #dc2626; font-size: .75rem; font-weight: 700; padding: .3rem .75rem; border-radius: 20px; }
-
-  /* ── WISHLIST ── */
-  .wish-card {
-    background: #fff;
-    border: 1px solid #e8eef7;
-    border-radius: 14px;
-    padding: 1rem;
+    transition: background .15s;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    transition: box-shadow .18s;
+    gap: 10px;
+    text-decoration: none;
   }
-  .wish-card:hover { box-shadow: 0 4px 20px rgba(59,130,246,.08); }
-  .wish-thumb {
-    width: 72px; height: 72px;
-    border-radius: 10px;
-    object-fit: cover;
-    background: #e2e8f0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.8rem;
-    flex-shrink: 0;
-    overflow: hidden;
+  .dropdown-item-custom:hover {
+    background: #eff6ff;
+    color: #2550d4;
   }
-  .wish-cat   { color: #3b82f6; font-size: .75rem; font-weight: 600; margin-bottom: .2rem; }
-  .wish-name  { font-weight: 700; color: #1e293b; font-size: .92rem; margin-bottom: .25rem; }
-  .wish-rating { color: #f59e0b; font-size: .78rem; font-weight: 600; }
-  .wish-price { font-weight: 800; color: #1e293b; font-size: .95rem; }
-  .btn-add-cart {
-    background: #3b82f6;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: .45rem 1rem;
-    font-size: .82rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background .18s;
-    white-space: nowrap;
-  }
-  .btn-add-cart:hover { background: #2563eb; }
-  .btn-wish-remove {
-    background: none;
-    border: none;
-    color: #ef4444;
-    font-size: 1.1rem;
-    cursor: pointer;
-    padding: .2rem;
-    line-height: 1;
-    transition: transform .18s;
-  }
-  .btn-wish-remove:hover { transform: scale(1.2); }
-
-  /* ── SETTINGS ── */
-  .settings-card {
-    background: #fff;
-    border: 1px solid #e8eef7;
-    border-radius: 14px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-  }
-  .settings-card-title {
-    font-weight: 700;
-    color: #1e293b;
-    font-size: .95rem;
+  .dropdown-item-custom .cat-emoji {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: #f0f4ff;
     display: flex;
     align-items: center;
-    gap: .5rem;
-  }
-  .btn-edit-link {
-    background: none;
-    border: none;
-    color: #64748b;
-    font-size: .8rem;
-    display: flex;
-    align-items: center;
-    gap: .3rem;
-    cursor: pointer;
-    padding: 0;
-    transition: color .18s;
-  }
-  .btn-edit-link:hover { color: #3b82f6; }
-  .info-tile {
-    background: #f8faff;
-    border: 1px solid #e8eef7;
-    border-radius: 10px;
-    padding: .85rem 1rem;
-  }
-  .info-tile .label {
-    color: #94a3b8;
-    font-size: .72rem;
-    margin-bottom: .25rem;
-  }
-  .info-tile .value {
-    color: #1e293b;
+    justify-content: center;
     font-size: .9rem;
-    font-weight: 600;
+    flex-shrink: 0;
   }
-  .sec-btn {
-    width: 100%;
-    text-align: left;
-    border-radius: 10px;
-    padding: .9rem 1.1rem;
-    font-size: .875rem;
-    font-weight: 500;
+
+  /* ── Profile icon ── */
+  .profile-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #1e2d5a;
+    color: #fff !important;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    border: 1px solid #e8eef7;
-    background: #f8faff;
-    color: #374151;
-    transition: background .18s;
-    cursor: pointer;
-    margin-bottom: .5rem;
+    justify-content: center;
+    font-size: 17px;
+    transition: all .2s;
+    text-decoration: none;
+    flex-shrink: 0;
   }
-  .sec-btn:last-child { margin-bottom: 0; }
-  .sec-btn:hover { background: #eef2ff; }
-  .sec-btn.danger {
-    background: #fff5f5;
-    border-color: #fecdd3;
-    color: #ef4444;
+  .profile-icon:hover {
+    background: #2550d4;
+    transform: scale(1.06);
   }
-  .sec-btn.danger:hover { background: #fee2e2; }
 
-  /* ── Shared ── */
-  .section-title {
-    color: #1e293b;
-    font-weight: 700;
-    font-size: 1.25rem;
-    margin-bottom: 1.25rem;
+  /* ── Cart icon ── */
+  .cart-icon {
+    position: relative;
+    color: #334155 !important;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    transition: all .2s;
+    text-decoration: none;
+    flex-shrink: 0;
   }
-  .empty-state { text-align: center; padding: 3rem 1rem; color: #94a3b8; }
-  .empty-state i { font-size: 2.5rem; display: block; margin-bottom: .75rem; }
+  .cart-icon:hover { color: #2550d4 !important; }
+  .cart-badge {
+    position: absolute;
+    top: -7px;
+    right: -8px;
+    background: #ef4444;
+    color: #fff;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    border: 2px solid #fff;
+  }
+
+  /* ── Toggler ── */
+  .navbar-toggler {
+    border: 1.5px solid #dbeafe;
+    border-radius: 8px;
+    padding: 5px 8px;
+    background: #f8faff;
+  }
+  .navbar-toggler:focus { box-shadow: none; outline: none; }
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%231e2d5a' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  }
+
+  /* ── Mobile collapse ── */
+  .mobile-menu-inner {
+    padding: 12px 0 8px;
+    border-top: 1.5px solid #e2e8f0;
+    margin-top: 8px;
+  }
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .15s;
+    margin-bottom: 2px;
+  }
+  .mobile-nav-link:hover,
+  .mobile-nav-link.active {
+    background: #eff6ff;
+    color: #2550d4;
+  }
+  .mobile-nav-link .link-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: #f0f4ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .9rem;
+  }
+  .mobile-divider {
+    border: none;
+    border-top: 1.5px solid #e2e8f0;
+    margin: 8px 0;
+  }
+
+  /* ── Category chips ── */
+  .category-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px 4px;
+  }
+  .category-chip {
+    background: #f0f4ff;
+    border: 1.5px solid #dbeafe;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #334155;
+    text-decoration: none;
+    transition: all .18s;
+  }
+  .category-chip:hover {
+    background: #2550d4;
+    border-color: #2550d4;
+    color: #fff;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 991px) {
+    .desktop-only { display: none !important; }
+  }
+  @media (min-width: 992px) {
+    .mobile-only { display: none !important; }
+    .search-bar-wrapper { margin: 0 16px !important; }
+  }
 </style>
 
-<div class="row g-4 align-items-start">
+{{-- ══════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════ --}}
+<nav class="top-navbar navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <div class="d-flex align-items-center w-100 gap-2">
 
-  {{-- ═══════════════════════════════
-       SIDEBAR
-  ═══════════════════════════════ --}}
-  <aside class="sidebar col-12 col-md-4 col-lg-3 mb-4 w-100">
+      {{-- ── Brand ── --}}
+      <a class="d-flex align-items-center gap-2 text-decoration-none flex-shrink-0"
+         href="{{ route('home') }}">
+        <img src="{{ asset('images/logo.png') }}?v=2"
+             style="height:42px; width:42px; border-radius:10px; object-fit:cover;">
+        <div class="navbar-brand-text d-none d-lg-block">
+          <div class="brand-name">Arcadia</div>
+          <div class="brand-sub">Hobby House</div>
+        </div>
+      </a>
 
-    {{-- Profile --}}
-    <div class="text-center p-4 border-bottom border-light border-opacity-10">
-      <div class="mx-auto mb-3 d-flex align-items-center justify-content-center"
-           style="width:64px;height:64px;border-radius:50%;background:#4e85f4;
-                  color:#fff;font-size:24px;font-weight:800;
-                  box-shadow:0 0 0 4px rgba(78,133,244,0.28);">
-        {{ strtoupper(substr($user->first_name, 0, 1)) }}
+      {{-- ── Desktop search ── --}}
+      <div class="search-bar-wrapper d-none d-lg-block mx-3 flex-grow-1">
+        <form class="position-relative"
+              id="searchForm"
+              autocomplete="off"
+              method="POST"
+              action="{{ route('searchProduct') }}">
+          @csrf
+          <input type="text"
+                 id="searchInput"
+                 class="search-input"
+                 placeholder="Search products, categories..."
+                 name="search">
+          <button class="search-btn" type="submit">
+            <i class="bi bi-search"></i>
+          </button>
+          <div id="suggestions" class="suggestions-list d-none"></div>
+        </form>
       </div>
-      <p class="text-white fw-bold mb-0" style="font-size:.95rem;">
-        {{ $user->first_name }} {{ $user->last_name }}
-      </p>
-      <p class="text-white-50 small mb-2">
-        {{ $user->email }}
-      </p>
-      <span class="badge bg-light text-dark px-3 py-2" style="font-size:.75rem;">
-        ⭐ Hobby Enthusiast
-      </span>
+
+      {{-- ── Desktop nav ── --}}
+      <div class="d-none d-lg-flex align-items-center gap-1 flex-shrink-0">
+
+        {{-- Categories dropdown --}}
+        <div class="dropdown">
+          <a class="nav-link-custom dropdown-toggle"
+             href="#"
+             data-bs-toggle="dropdown">
+            Categories
+          </a>
+          <ul class="dropdown-menu dropdown-menu-custom dropdown-menu-end">
+            <li>
+              <a class="dropdown-item-custom" href="{{ route('category.show','board games') }}">
+                <span class="cat-emoji">🎲</span> Board Games
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item-custom" href="{{ route('category.show','trading cards') }}">
+                <span class="cat-emoji">🃏</span> Trading Cards
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item-custom" href="{{ route('category.show','lego sets') }}">
+                <span class="cat-emoji">🧱</span> LEGO Sets
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item-custom" href="{{ route('category.show','collectibles') }}">
+                <span class="cat-emoji">⭐</span> Collectibles
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item-custom" href="{{ route('category.show','puzzles') }}">
+                <span class="cat-emoji">🧩</span> Puzzles
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item-custom" href="{{ route('category.show','art supplies') }}">
+                <span class="cat-emoji">🎨</span> Art Supplies
+              </a>
+            </li>
+            <li><hr style="border-color:#dbeafe; margin:6px 12px;"></li>
+            <li>
+              <a class="dropdown-item-custom" href="{{ route('category.show','all categories') }}">
+                <span class="cat-emoji">🗂️</span> All Categories
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <a class="nav-link-custom" href="{{ route('navigate', 'featured') }}">Featured</a>
+        <a class="nav-link-custom" href="{{ route('navigate', 'best-seller') }}">Best Sellers</a>
+
+        {{-- Divider --}}
+        <div style="width:1px;height:24px;background:#e2e8f0;margin:0 4px;"></div>
+
+        {{-- Profile --}}
+        <a class="profile-icon" href="{{ route('profile') }}" title="My Account">
+          <i class="bi bi-person-fill"></i>
+        </a>
+
+        {{-- Cart --}}
+        <a class="cart-icon ms-1" href="{{ route('cart') }}" title="Cart">
+          <i class="bi bi-cart2"></i>
+          <span class="cart-badge">
+            {{ Auth::check() ? \App\Models\Cart::where('user_id', Auth::id())->count() : 0 }}
+          </span>
+        </a>
+
+      </div>
+
+      {{-- ── Mobile right side ── --}}
+      <div class="d-flex align-items-center gap-2 d-lg-none ms-auto flex-shrink-0">
+        <a class="profile-icon" href="{{ route('profile') }}">
+          <i class="bi bi-person-fill"></i>
+        </a>
+        <a class="cart-icon" href="{{ route('cart') }}">
+          <i class="bi bi-cart2"></i>
+          <span class="cart-badge">
+            {{ Auth::check() ? \App\Models\Cart::where('user_id', Auth::id())->count() : 0 }}
+          </span>
+        </a>
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarMenu">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+
     </div>
 
-    {{-- Nav --}}
-    <nav class="py-3" role="tablist">
-      <a class="sidebar-link active"
-         data-bs-toggle="tab"
-         href="#orders"
-         role="tab">
-        <i class="fa-solid fa-box-open"></i>
-        My Orders
-      </a>
-      <a class="sidebar-link"
-         data-bs-toggle="tab"
-         href="#wishlist"
-         role="tab">
-        <i class="fa-regular fa-heart"></i>
-        Wishlist
-      </a>
-      <a class="sidebar-link"
-         data-bs-toggle="tab"
-         href="#settings"
-         role="tab">
-        <i class="fa-solid fa-gear"></i>
-        Settings
-      </a>
-      <div class="mx-3 my-1" style="border-top:1px solid rgba(255,255,255,0.1);"></div>
-      <form action="{{ route('logout') }}" method="POST">
-        @csrf
-        <button type="submit"
-                class="sidebar-link logout w-100 border-0 bg-transparent text-start">
-          <i class="fa-solid fa-right-from-bracket"></i>
-          Logout
-        </button>
-      </form>
-    </nav>
+    {{-- ── Mobile collapse ── --}}
+    <div class="collapse navbar-collapse w-100" id="navbarMenu">
+      <div class="mobile-menu-inner">
 
-  </aside>
+        {{-- Mobile search --}}
+        <form class="position-relative mb-3"
+              id="searchFormMobile"
+              autocomplete="off"
+              method="POST"
+              action="{{ route('searchProduct') }}">
+          @csrf
+          <input type="text"
+                 id="searchInputMobile"
+                 class="search-input"
+                 placeholder="Search products..."
+                 name="search">
+          <button class="search-btn" type="submit">
+            <i class="bi bi-search"></i>
+          </button>
+          <div id="suggestionsMobile" class="suggestions-list d-none"></div>
+        </form>
 
-  {{-- ═══════════════════════════════
-       TAB CONTENT
-  ═══════════════════════════════ --}}
-  <div class="col-12 col-md-8 col-lg-9">
-    <div class="tab-content" id="accountTabContent">
+        {{-- Mobile nav links --}}
+        <a class="mobile-nav-link" href="{{ route('navigate', 'featured') }}">
+          <span class="link-icon">⚡</span> Featured
+        </a>
+        <a class="mobile-nav-link" href="{{ route('navigate', 'best-seller') }}">
+          <span class="link-icon">🏆</span> Best Sellers
+        </a>
 
-      {{-- ================= ORDERS ================= --}}
-      <div class="tab-pane fade show active" id="orders" role="tabpanel">
+        <hr class="mobile-divider">
 
-        <div class="section-title">My Orders</div>
-
-        @if(isset($orders) && count($orders) > 0)
-          @foreach($orders as $order)
-            @php
-              $badgeClass = match($order->status ?? '') {
-                'Delivered'  => 'badge-delivered',
-                'Shipped'    => 'badge-shipped',
-                'Processing' => 'badge-processing',
-                'Pending'    => 'badge-pending',
-                'Cancelled'  => 'badge-cancelled',
-                default      => 'badge-pending',
-              };
-            @endphp
-            <div class="order-card">
-
-              {{-- Top row: ID, status, total --}}
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <div>
-                  <span class="order-number me-2">
-                    ORD-{{ str_pad($order->id, 3, '0', STR_PAD_LEFT) }}
-                  </span>
-                  <span class="{{ $badgeClass }}">{{ $order->status ?? 'Pending' }}</span>
-                  <div class="order-meta mt-1">
-                    {{ \Carbon\Carbon::parse($order->created_at)->format('Y-m-d') }}
-                    · {{ $order->items_count ?? count($order->items ?? []) }} item(s)
-                  </div>
-                </div>
-                <div class="order-total">
-                  ₱{{ number_format($order->total ?? $order->price, 2) }}
-                </div>
-              </div>
-
-              {{-- Item thumbnails --}}
-              @if(isset($order->items) && count($order->items) > 0)
-                <div class="d-flex gap-2 mb-3">
-                  @foreach($order->items->take(2) as $item)
-                    <div class="order-thumb">
-                      @if(isset($item->image))
-                        <img src="{{ asset('storage/'.$item->image) }}"
-                             alt="{{ $item->name }}"
-                             style="width:100%;height:100%;object-fit:cover;"/>
-                      @else
-                        {{ $item->emoji ?? '📦' }}
-                      @endif
-                    </div>
-                  @endforeach
-                  @if(count($order->items) > 2)
-                    <div class="order-thumb-more">
-                      +{{ count($order->items) - 2 }}
-                    </div>
-                  @endif
-                </div>
-              @endif
-
-              {{-- Action buttons --}}
-              <div class="d-flex gap-2 flex-wrap">
-                <button class="btn-view-details">View Details</button>
-                @if(($order->status ?? '') === 'Delivered')
-                  <button class="btn-leave-review">Leave Review</button>
-                @endif
-              </div>
-
-            </div>
-          @endforeach
-        @else
-          <div class="empty-state">
-            <i class="fa-solid fa-inbox"></i>
-            No orders yet. Start shopping!
+        {{-- Mobile category chips --}}
+        <div class="px-1 mb-1">
+          <div style="font-size:.72rem;font-weight:700;color:#94a3b8;
+                      text-transform:uppercase;letter-spacing:.06em;
+                      padding:0 4px 6px;">
+            Categories
           </div>
-        @endif
-
-      </div>
-
-      {{-- ================= WISHLIST ================= --}}
-      <div class="tab-pane fade" id="wishlist" role="tabpanel">
-
-        <div class="section-title">My Wishlist</div>
-
-        @if(isset($wishlist) && count($wishlist) > 0)
-          <div class="row g-3">
-            @foreach($wishlist as $item)
-              <div class="col-12 col-lg-6">
-                <div class="wish-card">
-
-                  {{-- Thumbnail --}}
-                  <div class="wish-thumb">
-                    @if(isset($item->image))
-                      <img src="{{ asset('storage/'.$item->image) }}"
-                           alt="{{ $item->name }}"
-                           style="width:100%;height:100%;object-fit:cover;"/>
-                    @else
-                      {{ $item->emoji ?? '🎁' }}
-                    @endif
-                  </div>
-
-                  {{-- Info --}}
-                  <div class="flex-grow-1 min-width-0">
-                    <div class="wish-cat">{{ $item->cat ?? $item->category ?? '' }}</div>
-                    <div class="wish-name">{{ $item->name }}</div>
-                    <div class="wish-rating">
-                      ⭐ {{ $item->rating ?? '—' }}
-                    </div>
-                  </div>
-
-                  {{-- Price + actions --}}
-                  <div class="d-flex flex-column align-items-end gap-2 flex-shrink-0">
-                    <div class="wish-price">₱{{ number_format($item->price, 2) }}</div>
-                    <div class="d-flex align-items-center gap-2">
-                      <button class="btn-add-cart">Add to Cart</button>
-                      <button class="btn-wish-remove" title="Remove from wishlist">
-                        <i class="fa-solid fa-heart"></i>
-                      </button>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            @endforeach
-          </div>
-        @else
-          <div class="empty-state">
-            <i class="fa-regular fa-heart"></i>
-            Your wishlist is empty.
-          </div>
-        @endif
-
-      </div>
-
-      {{-- ================= SETTINGS ================= --}}
-      <div class="tab-pane fade" id="settings" role="tabpanel">
-
-        <div class="section-title">Account Settings</div>
-
-        {{-- Personal Information --}}
-        <div class="settings-card">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <div class="settings-card-title">
-              <i class="fa-regular fa-user text-secondary"></i>
-              Personal Information
-            </div>
-            <button class="btn-edit-link">
-              <i class="fa-solid fa-pen-to-square"></i> Edit
-            </button>
-          </div>
-          <div class="row g-2">
-            <div class="col-12 col-sm-6">
-              <div class="info-tile">
-                <div class="label">Full Name</div>
-                <div class="value">{{ $user->first_name }} {{ $user->last_name }}</div>
-              </div>
-            </div>
-            <div class="col-12 col-sm-6">
-              <div class="info-tile">
-                <div class="label">Email</div>
-                <div class="value">{{ $user->email }}</div>
-              </div>
-            </div>
-            @if(isset($user->phone))
-              <div class="col-12 col-sm-6">
-                <div class="info-tile">
-                  <div class="label">Phone</div>
-                  <div class="value">{{ $user->phone }}</div>
-                </div>
-              </div>
-            @endif
-            @if(isset($user->birthday))
-              <div class="col-12 col-sm-6">
-                <div class="info-tile">
-                  <div class="label">Birthday</div>
-                  <div class="value">
-                    {{ \Carbon\Carbon::parse($user->birthday)->format('M d, Y') }}
-                  </div>
-                </div>
-              </div>
-            @endif
+          <div class="category-grid">
+            <a href="{{ route('category.show','board games') }}"    class="category-chip">🎲 Board Games</a>
+            <a href="{{ route('category.show','trading cards') }}"  class="category-chip">🃏 Trading Cards</a>
+            <a href="{{ route('category.show','lego sets') }}"      class="category-chip">🧱 LEGO Sets</a>
+            <a href="{{ route('category.show','collectibles') }}"   class="category-chip">⭐ Collectibles</a>
+            <a href="{{ route('category.show','puzzles') }}"        class="category-chip">🧩 Puzzles</a>
+            <a href="{{ route('category.show','art supplies') }}"   class="category-chip">🎨 Art Supplies</a>
           </div>
         </div>
 
-        {{-- Security --}}
-        <div class="settings-card">
-          <div class="settings-card-title mb-3">
-            🔒 Security
-          </div>
-          <button class="sec-btn">
-            Change Password
-            <i class="fa-solid fa-chevron-right" style="font-size:.75rem;color:#94a3b8;"></i>
-          </button>
-          <button class="sec-btn danger">
-            Delete Account
-            <i class="fa-solid fa-chevron-right" style="font-size:.75rem;"></i>
-          </button>
-        </div>
+      </div>
+    </div>
 
-      </div>{{-- end settings --}}
-
-    </div>{{-- end tab-content --}}
   </div>
+</nav>
 
-</div>{{-- end row --}}
+<script>
+  let mockDB = { products: [] };
 
-@endsection
+  const searchInputs = [
+    { input: document.getElementById('searchInput'),       box: document.getElementById('suggestions') },
+    { input: document.getElementById('searchInputMobile'), box: document.getElementById('suggestionsMobile') }
+  ];
+
+  // Load products
+  fetch('/products')
+    .then(res => res.json())
+    .then(data => { mockDB.products = data; })
+    .catch(err => console.error('Failed to load products', err));
+
+  function createSuggestionItem(product, inputList) {
+    const item = document.createElement('div');
+    item.className = 'suggestion-item';
+    item.innerHTML = `<strong>${product.name}</strong>
+      <span style="color:#94a3b8;font-size:.78rem;margin-left:6px;">· ${product.category}</span>`;
+
+    item.addEventListener('mousedown', function (e) {
+      e.preventDefault();
+      inputList.forEach(i => { if (i.input) i.input.value = product.name; });
+      hideAllSuggestions();
+      const form = document.getElementById('searchForm');
+      if (form) form.submit();
+    });
+    return item;
+  }
+
+  function showSuggestions(matches, box, inputList) {
+    box.innerHTML = '';
+    if (!matches.length) { box.classList.add('d-none'); return; }
+    matches.slice(0, 6).forEach(p => box.appendChild(createSuggestionItem(p, inputList)));
+    box.classList.remove('d-none');
+  }
+
+  function hideAllSuggestions() {
+    searchInputs.forEach(s => { if (s.box) s.box.classList.add('d-none'); });
+  }
+
+  function filterProducts(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return (mockDB.products || []).filter(p => p.name.toLowerCase().startsWith(q));
+  }
+
+  searchInputs.forEach(({ input, box }) => {
+    if (!input) return;
+    input.addEventListener('input', function () {
+      if (!this.value) { box.classList.add('d-none'); return; }
+      showSuggestions(filterProducts(this.value), box, searchInputs);
+    });
+    input.addEventListener('focus', function () {
+      if (this.value.trim()) {
+        const b = searchInputs.find(s => s.input === this)?.box;
+        if (b) showSuggestions(filterProducts(this.value), b, searchInputs);
+      }
+    });
+    input.addEventListener('blur', () => setTimeout(hideAllSuggestions, 150));
+  });
+
+  const desktopForm = document.getElementById('searchForm');
+  if (desktopForm) {
+    desktopForm.addEventListener('submit', function (e) {
+      const q = document.getElementById('searchInput')?.value.trim();
+      if (!q) e.preventDefault();
+      hideAllSuggestions();
+    });
+  }
+</script>
