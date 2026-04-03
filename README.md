@@ -2,6 +2,42 @@
 @section('main')
 
 <style>
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: #1e2d5a;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.65);
+    transition: 0.2s;
+    text-decoration: none;
+    border-radius: 10px;
+    margin: 2px 10px;
+    cursor: pointer;
+  }
+  .sidebar-link:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+  }
+  .sidebar-link.active {
+    background: #2550d4;
+    color: #fff;
+  }
+  .sidebar-link.logout:hover {
+    color: #fca5a5;
+    background: rgba(239,68,68,0.15);
+  }
+  @media (max-width: 768px) {
+    .sidebar { border-radius: 5px; }
+  }
+
   /* ── Orders ── */
   .order-card {
     background: #fff;
@@ -113,163 +149,232 @@
   .section-title { color: #1E3A5F; font-weight: 700; font-size: 1.1rem; margin-bottom: 1rem; }
 </style>
 
-<div class="tab-content" id="accountTabContent">
+<div class="row g-4 align-items-start">
 
-  {{-- ================= ORDERS ================= --}}
-  <div class="tab-pane fade show active" id="orders" role="tabpanel">
+  {{-- ═══════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════ --}}
+  <aside class="sidebar col-12 col-md-4 col-lg-3 mb-4 w-100">
 
-    <h1 class="section-title">
-      <i class="bi bi-box-seam me-2 text-primary"></i>My Orders
-    </h1>
-
-    @if(isset($orders) && count($orders) > 0)
-      <div class="d-flex flex-column gap-3">
-        @foreach($orders as $item)
-          <div class="order-card">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <div class="order-id">
-                  ORD-{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}
-                </div>
-                <div class="order-date">
-                  <i class="bi bi-calendar3 me-1"></i>
-                  {{ \Carbon\Carbon::parse($item->created_at)->format('M d, Y') }}
-                </div>
-              </div>
-              <div class="text-end">
-                <div class="order-price">₱{{ number_format($item->price, 2) }}</div>
-                @if(isset($item->status))
-                  @php
-                    $statusClass = match($item->status) {
-                      'Delivered'  => 'text-bg-success',
-                      'Shipped'    => 'text-bg-info',
-                      'Processing' => 'text-bg-primary',
-                      'Pending'    => 'text-bg-warning',
-                      'Cancelled'  => 'text-bg-danger',
-                      default      => 'text-bg-secondary',
-                    };
-                  @endphp
-                  <span class="badge rounded-pill {{ $statusClass }} mt-1"
-                        style="font-size:.72rem;">
-                    {{ $item->status }}
-                  </span>
-                @endif
-              </div>
-            </div>
-          </div>
-        @endforeach
+    {{-- Profile --}}
+    <div class="text-center p-4 border-bottom border-light border-opacity-10">
+      <div class="mx-auto mb-2 d-flex align-items-center justify-content-center"
+           style="width:64px;height:64px;border-radius:50%;background:#4e85f4;
+                  color:#fff;font-size:24px;font-weight:800;
+                  box-shadow:0 0 0 4px rgba(78,133,244,0.28);">
+        {{ strtoupper(substr($user->first_name, 0, 1)) }}
       </div>
-    @else
-      <div class="empty-state">
-        <i class="bi bi-inbox"></i>
-        No orders yet. Start shopping!
-      </div>
-    @endif
-
-  </div>
-
-  {{-- ================= WISHLIST ================= --}}
-  <div class="tab-pane fade" id="wishlist" role="tabpanel">
-
-    <h1 class="section-title">
-      <i class="bi bi-heart me-2 text-primary"></i>My Wishlist
-    </h1>
-
-    @if(isset($wishlist) && count($wishlist) > 0)
-      <div class="row g-3">
-        @foreach($wishlist as $item)
-          <div class="col-12 col-sm-6 col-lg-4">
-            <div class="wish-card">
-              <div class="wish-name">{{ $item->name }}</div>
-              <div class="wish-price">₱{{ number_format($item->price, 2) }}</div>
-              <a href="{{ route('product_detail', $item->id) }}"
-                 class="text-decoration-none">
-                <button class="wish-btn">
-                  <i class="bi bi-eye me-1"></i> View Item
-                </button>
-              </a>
-            </div>
-          </div>
-        @endforeach
-      </div>
-    @else
-      <div class="empty-state">
-        <i class="bi bi-heart"></i>
-        Your wishlist is empty.
-      </div>
-    @endif
-
-  </div>
-
-  {{-- ================= SETTINGS ================= --}}
-  <div class="tab-pane fade" id="settings" role="tabpanel">
-
-    <h1 class="section-title">Account Settings</h1>
-
-    <div class="d-flex flex-column gap-4">
-
-      {{-- Personal Information --}}
-      <div class="content-card">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <div class="content-card-title">
-            <i class="bi bi-person text-primary"></i> Personal Information
-          </div>
-          <button class="edit-btn">
-            <i class="bi bi-pen"></i> Edit
-          </button>
-        </div>
-        <div class="row g-2">
-          <div class="col-6">
-            <div class="info-tile">
-              <div class="label">Full Name</div>
-              <div class="value">{{ $user->first_name }} {{ $user->last_name }}</div>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="info-tile">
-              <div class="label">Email</div>
-              <div class="value">{{ $user->email }}</div>
-            </div>
-          </div>
-          @if(isset($user->phone))
-            <div class="col-6">
-              <div class="info-tile">
-                <div class="label">Phone</div>
-                <div class="value">{{ $user->phone }}</div>
-              </div>
-            </div>
-          @endif
-          @if(isset($user->birthday))
-            <div class="col-6">
-              <div class="info-tile">
-                <div class="label">Birthday</div>
-                <div class="value">
-                  {{ \Carbon\Carbon::parse($user->birthday)->format('M d, Y') }}
-                </div>
-              </div>
-            </div>
-          @endif
-        </div>
-      </div>
-
-      {{-- Security --}}
-      <div class="content-card">
-        <div class="content-card-title mb-3">🔒 Security</div>
-        <div class="d-flex flex-column gap-2">
-          <button class="sec-btn">
-            Change Password
-            <i class="bi bi-chevron-right"></i>
-          </button>
-          <button class="sec-btn danger">
-            Delete Account
-            <i class="bi bi-chevron-right"></i>
-          </button>
-        </div>
-      </div>
-
+      <p class="text-white fw-bold mb-0">
+        {{ $user->first_name }} {{ $user->last_name }}
+      </p>
+      <p class="text-white-50 small mb-2">
+        {{ $user->email }}
+      </p>
+      <span class="badge bg-light text-dark px-3 py-2">
+        ⭐ Hobby Enthusiast
+      </span>
     </div>
-  </div>{{-- end settings --}}
 
-</div>{{-- end tab-content --}}
+    {{-- Nav --}}
+    <nav class="py-3" role="tablist">
+      <a class="sidebar-link active"
+         data-bs-toggle="tab"
+         href="#orders"
+         role="tab">
+        <i class="fa-solid fa-box-open"></i>
+        My Orders
+      </a>
+      <a class="sidebar-link"
+         data-bs-toggle="tab"
+         href="#wishlist"
+         role="tab">
+        <i class="fa-regular fa-heart"></i>
+        Wishlist
+      </a>
+      <a class="sidebar-link"
+         data-bs-toggle="tab"
+         href="#settings"
+         role="tab">
+        <i class="fa-solid fa-gear"></i>
+        Settings
+      </a>
+      <div class="mx-3 my-1" style="border-top:1px solid rgba(255,255,255,0.1);"></div>
+      <form action="{{ route('logout') }}" method="POST">
+        @csrf
+        <button type="submit"
+                class="sidebar-link logout w-100 border-0 bg-transparent text-start">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          Logout
+        </button>
+      </form>
+    </nav>
+
+  </aside>
+
+  {{-- ═══════════════════════════════
+       TAB CONTENT
+  ═══════════════════════════════ --}}
+  <div class="col-12 col-md-8 col-lg-9">
+    <div class="tab-content" id="accountTabContent">
+
+      {{-- ================= ORDERS ================= --}}
+      <div class="tab-pane fade show active" id="orders" role="tabpanel">
+
+        <h1 class="section-title">
+          <i class="fa-solid fa-box-open me-2 text-primary"></i>My Orders
+        </h1>
+
+        @if(isset($orders) && count($orders) > 0)
+          <div class="d-flex flex-column gap-3">
+            @foreach($orders as $item)
+              <div class="order-card">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="order-id">
+                      ORD-{{ str_pad($item->id, 3, '0', STR_PAD_LEFT) }}
+                    </div>
+                    <div class="order-date">
+                      <i class="fa-regular fa-calendar me-1"></i>
+                      {{ \Carbon\Carbon::parse($item->created_at)->format('M d, Y') }}
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <div class="order-price">₱{{ number_format($item->price, 2) }}</div>
+                    @if(isset($item->status))
+                      @php
+                        $statusClass = match($item->status) {
+                          'Delivered'  => 'text-bg-success',
+                          'Shipped'    => 'text-bg-info',
+                          'Processing' => 'text-bg-primary',
+                          'Pending'    => 'text-bg-warning',
+                          'Cancelled'  => 'text-bg-danger',
+                          default      => 'text-bg-secondary',
+                        };
+                      @endphp
+                      <span class="badge rounded-pill {{ $statusClass }} mt-1"
+                            style="font-size:.72rem;">
+                        {{ $item->status }}
+                      </span>
+                    @endif
+                  </div>
+                </div>
+              </div>
+            @endforeach
+          </div>
+        @else
+          <div class="empty-state">
+            <i class="fa-solid fa-inbox"></i>
+            No orders yet. Start shopping!
+          </div>
+        @endif
+
+      </div>
+
+      {{-- ================= WISHLIST ================= --}}
+      <div class="tab-pane fade" id="wishlist" role="tabpanel">
+
+        <h1 class="section-title">
+          <i class="fa-regular fa-heart me-2 text-primary"></i>My Wishlist
+        </h1>
+
+        @if(isset($wishlist) && count($wishlist) > 0)
+          <div class="row g-3">
+            @foreach($wishlist as $item)
+              <div class="col-12 col-sm-6 col-lg-4">
+                <div class="wish-card">
+                  <div class="wish-name">{{ $item->name }}</div>
+                  <div class="wish-price">₱{{ number_format($item->price, 2) }}</div>
+                  <a href="{{ route('product_detail', $item->id) }}"
+                     class="text-decoration-none">
+                    <button class="wish-btn">
+                      <i class="fa-regular fa-eye me-1"></i> View Item
+                    </button>
+                  </a>
+                </div>
+              </div>
+            @endforeach
+          </div>
+        @else
+          <div class="empty-state">
+            <i class="fa-regular fa-heart"></i>
+            Your wishlist is empty.
+          </div>
+        @endif
+
+      </div>
+
+      {{-- ================= SETTINGS ================= --}}
+      <div class="tab-pane fade" id="settings" role="tabpanel">
+
+        <h1 class="section-title">Account Settings</h1>
+
+        <div class="d-flex flex-column gap-4">
+
+          {{-- Personal Information --}}
+          <div class="content-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="content-card-title">
+                <i class="fa-solid fa-user text-primary"></i> Personal Information
+              </div>
+              <button class="edit-btn">
+                <i class="fa-solid fa-pen"></i> Edit
+              </button>
+            </div>
+            <div class="row g-2">
+              <div class="col-6">
+                <div class="info-tile">
+                  <div class="label">Full Name</div>
+                  <div class="value">{{ $user->first_name }} {{ $user->last_name }}</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="info-tile">
+                  <div class="label">Email</div>
+                  <div class="value">{{ $user->email }}</div>
+                </div>
+              </div>
+              @if(isset($user->phone))
+                <div class="col-6">
+                  <div class="info-tile">
+                    <div class="label">Phone</div>
+                    <div class="value">{{ $user->phone }}</div>
+                  </div>
+                </div>
+              @endif
+              @if(isset($user->birthday))
+                <div class="col-6">
+                  <div class="info-tile">
+                    <div class="label">Birthday</div>
+                    <div class="value">
+                      {{ \Carbon\Carbon::parse($user->birthday)->format('M d, Y') }}
+                    </div>
+                  </div>
+                </div>
+              @endif
+            </div>
+          </div>
+
+          {{-- Security --}}
+          <div class="content-card">
+            <div class="content-card-title mb-3">🔒 Security</div>
+            <div class="d-flex flex-column gap-2">
+              <button class="sec-btn">
+                Change Password
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+              <button class="sec-btn danger">
+                Delete Account
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>{{-- end settings --}}
+
+    </div>{{-- end tab-content --}}
+  </div>
+
+</div>{{-- end row --}}
 
 @endsection
